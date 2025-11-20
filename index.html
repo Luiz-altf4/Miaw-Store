@@ -1,168 +1,388 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Miaw Store - PVB Shop</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Miaw Store — Plants vs Brainrot</title>
+  <style>
+    /* Reset + base */
+    *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#eee;background:linear-gradient(135deg,#050005 0%,#1a0033 35%,#000 100%);-webkit-font-smoothing:antialiased}
+    a{color:inherit}
 
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #000000, #39006d, #000000);
-        background-size: 300% 300%;
-        animation: gradient 12s ease infinite;
-        font-family: "Poppins", Arial;
-        color: white;
-        text-align: center;
-    }
+    /* Layout */
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#ff6bd8,#7a00ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;box-shadow:0 8px 30px rgba(122,0,255,0.25)}
+    h1{margin:0;font-size:20px;letter-spacing:1px}
+    .tag{opacity:.75;font-size:13px}
 
-    @keyframes gradient {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
-    }
+    /* Main grid */
+    main{display:grid;grid-template-columns:1fr 360px;gap:28px;padding:18px 28px}
+    @media(max-width:980px){main{grid-template-columns:1fr} .sidebar{order:2}}
 
-    h1 {
-        font-size: 55px;
-        margin-top: 40px;
-        letter-spacing: 2px;
-        text-shadow: 0 0 10px #a100ff, 0 0 30px #7a00bd;
-        animation: float 3s ease-in-out infinite;
-    }
+    /* Catalog */
+    .catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .18s ease,box-shadow .18s ease;border:1px solid rgba(255,255,255,0.03)}
+    .card:hover{transform:translateY(-8px);box-shadow:0 18px 50px rgba(122,0,255,0.12)}
+    .plant-img{width:140px;height:140px;object-fit:contain;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
+    .plant-name{font-weight:600;margin:0}
+    .price{font-weight:700;margin:4px 0}
+    .muted{opacity:.75;font-size:13px}
 
-    @keyframes float {
-        0% {transform: translateY(0);}
-        50% {transform: translateY(-10px);}
-        100% {transform: translateY(0);}
-    }
+    /* Buttons */
+    .btn{appearance:none;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn-primary{background:linear-gradient(90deg,#8b00ff,#de00ff);color:white;box-shadow:0 10px 30px rgba(139,0,255,0.18)}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
 
-    .container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 20px;
-    }
+    /* Sidebar (cart + admin) */
+    .sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:14px;height:fit-content;position:sticky;top:18px}
+    .cart-list{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow:auto;padding-right:6px}
+    .cart-item{display:flex;gap:10px;align-items:center}
+    .ci-img{width:56px;height:56px;border-radius:8px;object-fit:contain}
+    .ci-info{flex:1}
+    .qty{display:inline-flex;gap:8px;align-items:center}
 
-    .card {
-        background: rgba(255,255,255,0.06);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        width: 260px;
-        padding: 15px;
-        margin: 20px;
-        transition: 0.3s;
-        box-shadow: 0 0 20px #00000080;
-    }
+    /* Checkout */
+    .total{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.03);margin-top:12px}
 
-    .card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px #8400ff;
-    }
+    /* Admin panel modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);visibility:hidden;opacity:0;transition:opacity .18s ease,visibility .18s ease}
+    .modal.open{visibility:visible;opacity:1}
+    .panel{width:920px;max-width:94%;background:#070007;border-radius:12px;padding:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .orders{max-height:60vh;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+    .badge{padding:6px 8px;border-radius:8px;font-weight:700}
+    .bg-pending{background:linear-gradient(90deg,#ffb86b,#ff6b6b);color:#120000}
+    .bg-done{background:linear-gradient(90deg,#6bffb8,#33ff9a);color:#05210e}
 
-    .img {
-        width: 150px;
-        height: 150px;
-        object-fit: contain;
-        filter: drop-shadow(0 0 10px #ffffff80);
-        transition: 0.3s;
-    }
-
-    .card:hover .img {
-        transform: scale(1.10);
-        filter: drop-shadow(0 0 20px #b300ff);
-    }
-
-    .btn {
-        margin-top: 10px;
-        padding: 12px 20px;
-        background: #9d00ff;
-        border: none;
-        border-radius: 10px;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        width: 85%;
-        box-shadow: 0 0 15px #9d00ff;
-        transition: 0.2s;
-    }
-
-    .btn:hover {
-        background: #c100ff;
-        box-shadow: 0 0 20px #d000ff;
-        transform: scale(1.04);
-    }
-
-    footer {
-        margin-top: 40px;
-        opacity: 0.7;
-        font-size: 14px;
-    }
-</style>
+    /* Tiny helpers */
+    .flex{display:flex;gap:8px;align-items:center}
+    input,select,textarea{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:8px;color:inherit;width:100%}
+    .muted-small{opacity:.6;font-size:13px}
+    footer{padding:24px 28px;text-align:center;opacity:.6;font-size:13px}
+  </style>
 </head>
-
 <body>
-
-<h1>MIAW STORE</h1>
-<p style="opacity: 0.8; font-size: 18px;">Escolha sua planta e me chama no Discord pra fechar — envio rápido, sem frescura.</p>
-
-
-<div class="container">
-
-    <!-- TOMATRIO -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/tomato/tomato_PNG12594.png" class="img">
-        <h2>Tomatrio — 50 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
+  <header>
+    <div class="brand">
+      <div class="logo">M</div>
+      <div>
+        <h1>Miaw Store</h1>
+        <div class="tag">Plants vs Brainrot — Loja oficial (não oficial)</div>
+      </div>
     </div>
-
-    <!-- MANGO -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/mango/mango_PNG9196.png" class="img">
-        <h2>Mango — 50 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
+    <div class="flex">
+      <div class="muted-small">Admin</div>
+      <button class="btn btn-ghost" id="open-admin">Abrir painel</button>
     </div>
+  </header>
 
-    <!-- KING LIMONE -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/lemon/lemon_PNG25227.png" class="img">
-        <h2>King Limone — 70 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
+  <main>
+    <section>
+      <p class="muted-small">Catálogo</p>
+      <div class="catalog" id="catalog"></div>
+    </section>
+
+    <aside class="sidebar">
+      <h3>Carrinho</h3>
+      <div class="cart-list" id="cart-list"></div>
+
+      <div class="total">
+        <div>
+          <div class="muted-small">Total aproximado</div>
+          <div style="font-weight:800;font-size:18px" id="cart-total">0 Robux</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="btn btn-primary" id="checkout">Finalizar compra</button>
+        <button class="btn btn-ghost" id="clear-cart">Limpar</button>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(255,255,255,0.03)">
+      <div class="muted-small">Histórico local</div>
+      <div id="history-list" style="margin-top:8px;max-height:160px;overflow:auto"></div>
+    </aside>
+  </main>
+
+  <footer>
+    Miaw Store • Projeto para GitHub Pages • Todas as imagens são substituíveis
+  </footer>
+
+  <!-- ADMIN MODAL -->
+  <div class="modal" id="admin-modal">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0">Painel Admin</h3>
+        <div class="flex"><button class="btn btn-ghost" id="export-all">Exportar CSV</button><button class="btn btn-ghost" id="close-admin">Fechar</button></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <input id="filter-status" placeholder="Filtrar por status (pending/done)" />
+        <input id="filter-text" placeholder="Procurar por nome/contato" />
+        <button class="btn btn-primary" id="apply-filters">Aplicar</button>
+      </div>
+
+      <div class="orders" id="orders-table"></div>
     </div>
+  </div>
 
-    <!-- SHROMBINO -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/mushroom/mushroom_PNG28.png" class="img">
-        <h2>Shrombino — 50 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
+  <!-- CHECKOUT MODAL (simple) -->
+  <div class="modal" id="checkout-modal">
+    <div class="panel" style="max-width:520px">
+      <h3>Finalizar compra</h3>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <label>Nome do comprador<input id="buyer-name" placeholder="Seu nome or nickname"></label>
+        <label>Contato (Discord/Roblox/Telegram/Outro)<input id="buyer-contact" placeholder="@seunome ou numero"></label>
+        <label>Observação (opcional)<textarea id="buyer-note" rows="3" placeholder="Opcional"></textarea></label>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn btn-ghost" id="cancel-checkout">Cancelar</button>
+          <button class="btn btn-primary" id="confirm-checkout">Confirmar pedido</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- MANGO GIGANTE -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/mango/mango_PNG9198.png" class="img">
-        <h2>Mango Gigante — 100 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
-    </div>
+  <script>
+    // ======== CONFIG ========
+    const ADMIN_PASSWORD = 'miawadmin123'; // Troca aqui se quiser
+    const STORAGE_CART = 'miaw_cart_v1';
+    const STORAGE_ORDERS = 'miaw_orders_v1';
 
-    <!-- UVA ENORME -->
-    <div class="card">
-        <img src="https://pngimg.com/uploads/grape/grape_PNG12433.png" class="img">
-        <h2>Uva Enorme — 200 Robux</h2>
-        <button class="btn" onclick="copy()">Copiar contato</button>
-    </div>
+    // Produtos — edita preços, nomes e imagens (transparentes)
+    const PRODUCTS = [
+      {id:'tomatrio', name:'Tomatrio', price:50, img:'https://pngimg.com/uploads/tomato/tomato_PNG12594.png'},
+      {id:'mango', name:'Mango', price:50, img:'https://pngimg.com/uploads/mango/mango_PNG9196.png'},
+      {id:'kinglimone', name:'King Limone', price:70, img:'https://pngimg.com/uploads/lemon/lemon_PNG25227.png'},
+      {id:'shrombino', name:'Shrombino', price:50, img:'https://pngimg.com/uploads/mushroom/mushroom_PNG28.png'},
+      {id:'mangogigante', name:'Mango Gigante', price:100, img:'https://pngimg.com/uploads/mango/mango_PNG9198.png'},
+      {id:'uvaenorme', name:'Uva Enorme', price:200, img:'https://pngimg.com/uploads/grape/grape_PNG12433.png'}
+    ];
 
-</div>
+    // ======== STATE ========
+    let cart = JSON.parse(localStorage.getItem(STORAGE_CART) || '[]');
+    let orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS) || '[]');
 
-<footer>
-    Miaw Store © 2025 • Loja independente de Plants vs Brainrot
-</footer>
+    // ======== RENDER CATALOG ========
+    const catalogEl = document.getElementById('catalog');
+    function renderCatalog(){
+      catalogEl.innerHTML = '';
+      for(const p of PRODUCTS){
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <img class="plant-img" src="${p.img}" alt="${p.name}">
+          <div style="text-align:center">
+            <div class="plant-name">${p.name}</div>
+            <div class="price">${p.price} Robux</div>
+            <div class="muted">Entrega manual após confirmação</div>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn btn-primary" data-id="${p.id}">Adicionar</button>
+            <button class="btn btn-ghost" data-id-view="${p.id}">Ver</button>
+          </div>
+        `;
+        catalogEl.appendChild(card);
+      }
+    }
 
-<script>
-function copy() {
-    navigator.clipboard.writeText("SEU DISCORD AQUI");
-    alert("Contato copiado!");
-}
-</script>
+    // ======== CART HANDLERS ========
+    function saveCart(){ localStorage.setItem(STORAGE_CART, JSON.stringify(cart)); renderCart(); }
+    function cartTotal(){ return cart.reduce((s,i)=> s + i.price * i.qty, 0); }
 
+    function addToCart(id){
+      const prod = PRODUCTS.find(x=>x.id===id); if(!prod) return;
+      const found = cart.find(x=>x.id===id);
+      if(found) found.qty++;
+      else cart.push({id:prod.id,name:prod.name,price:prod.price,img:prod.img,qty:1});
+      saveCart();
+    }
+
+    function removeFromCart(id){ cart = cart.filter(x=>x.id!==id); saveCart(); }
+    function changeQty(id,delta){ const it = cart.find(x=>x.id===id); if(!it) return; it.qty = Math.max(1,it.qty+delta); saveCart(); }
+    function clearCart(){ cart = []; saveCart(); }
+
+    function renderCart(){
+      const el = document.getElementById('cart-list'); el.innerHTML='';
+      if(cart.length===0){ el.innerHTML = '<div class="muted-small">Carrinho vazio</div>'; }
+      for(const it of cart){
+        const row = document.createElement('div'); row.className='cart-item';
+        row.innerHTML = `
+          <img class="ci-img" src="${it.img}" alt="">
+          <div class="ci-info">
+            <div style="font-weight:700">${it.name}</div>
+            <div class="muted-small">${it.price} Robux • ${it.price*it.qty} total</div>
+            <div class="qty" style="margin-top:6px">
+              <button class="btn btn-ghost" data-dec="${it.id}">-</button>
+              <div style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.02)">${it.qty}</div>
+              <button class="btn btn-ghost" data-inc="${it.id}">+</button>
+              <button class="btn btn-ghost" data-rm="${it.id}">Remover</button>
+            </div>
+          </div>
+        `;
+        el.appendChild(row);
+      }
+      document.getElementById('cart-total').innerText = cartTotal() + ' Robux';
+      renderHistory();
+    }
+
+    // ======== CHECKOUT FLOW ========
+    const checkoutModal = document.getElementById('checkout-modal');
+    const adminModal = document.getElementById('admin-modal');
+
+    document.getElementById('checkout').addEventListener('click',()=>{
+      if(cart.length===0) return alert('Carrinho vazio');
+      openModal(checkoutModal);
+    });
+    document.getElementById('cancel-checkout').addEventListener('click',()=>closeModal(checkoutModal));
+
+    document.getElementById('confirm-checkout').addEventListener('click',()=>{
+      const name = document.getElementById('buyer-name').value.trim() || 'Anônimo';
+      const contact = document.getElementById('buyer-contact').value.trim() || 'Não informado';
+      const note = document.getElementById('buyer-note').value.trim() || '';
+      const order = {
+        id: 'ord_' + Date.now(),
+        createdAt: new Date().toISOString(),
+        items: cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})),
+        total: cartTotal(),
+        buyer:{name,contact,note},
+        status:'pending'
+      };
+      orders.unshift(order);
+      localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+      // Save in customer's local history as well
+      const myHistory = JSON.parse(localStorage.getItem('miaw_my_history_v1')||'[]');
+      myHistory.unshift(order);
+      localStorage.setItem('miaw_my_history_v1', JSON.stringify(myHistory));
+
+      clearCart();
+      closeModal(checkoutModal);
+      alert('Pedido criado — ID: ' + order.id + '\nMostre o histórico para o cliente ou copie o ID para controle.');
+    });
+
+    // ======== ADMIN PANEL ========
+    document.getElementById('open-admin').addEventListener('click',()=>{
+      const pass = prompt('Senha de admin:');
+      if(pass !== ADMIN_PASSWORD) return alert('Senha incorreta');
+      openModal(adminModal); renderOrders();
+    });
+    document.getElementById('close-admin').addEventListener('click',()=>closeModal(adminModal));
+
+    document.getElementById('apply-filters').addEventListener('click',renderOrders);
+    document.getElementById('export-all').addEventListener('click',()=>{
+      const csv = toCSV(orders);
+      downloadFile(csv, 'miaw_orders_' + Date.now() + '.csv');
+    });
+
+    function renderOrders(){
+      const status = document.getElementById('filter-status').value.trim().toLowerCase();
+      const text = document.getElementById('filter-text').value.trim().toLowerCase();
+      let list = orders.slice();
+      if(status) list = list.filter(o=>o.status.toLowerCase()===status);
+      if(text) list = list.filter(o=> (o.buyer.name+ ' ' + o.buyer.contact + ' ' + o.id).toLowerCase().includes(text));
+
+      const wrap = document.getElementById('orders-table'); wrap.innerHTML='';
+      if(list.length===0) { wrap.innerHTML='<div class="muted-small">Nenhum pedido</div>'; return; }
+
+      const table = document.createElement('table');
+      table.innerHTML = `
+        <thead><tr><th>ID</th><th>Comprador</th><th>Itens</th><th>Total</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+      for(const o of list){
+        const tr = document.createElement('tr');
+        const itemsText = o.items.map(i=>`${i.qty}x ${i.name}`).join(', ');
+        tr.innerHTML = `
+          <td>${o.id}</td>
+          <td><strong>${o.buyer.name}</strong><div class="muted-small">${o.buyer.contact}</div></td>
+          <td>${itemsText}</td>
+          <td>${o.total} Robux</td>
+          <td class="muted-small">${new Date(o.createdAt).toLocaleString()}</td>
+          <td><span class="badge ${o.status==='pending'?'bg-pending':'bg-done'}">${o.status}</span></td>
+          <td>
+            <div class="flex">
+              <button class="btn btn-ghost" data-mark="${o.id}">Marcar entregue</button>
+              <button class="btn btn-ghost" data-export="${o.id}">Exportar</button>
+              <button class="btn btn-ghost" data-del="${o.id}">Apagar</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+      wrap.appendChild(table);
+
+      // hooks
+      table.querySelectorAll('[data-mark]').forEach(btn=>btn.addEventListener('click',()=>{
+        const id = btn.getAttribute('data-mark'); markDelivered(id);
+      }));
+      table.querySelectorAll('[data-export]').forEach(btn=>btn.addEventListener('click',()=>{
+        const id = btn.getAttribute('data-export'); const o = orders.find(x=>x.id===id); if(!o) return; downloadFile(toCSV([o]), o.id + '.csv');
+      }));
+      table.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{
+        const id = btn.getAttribute('data-del'); if(!confirm('Apagar pedido '+id+' ?')) return; orders = orders.filter(x=>x.id!==id); localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders();
+      }));
+    }
+
+    function markDelivered(id){
+      const o = orders.find(x=>x.id===id); if(!o) return; o.status='done'; localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders(); alert('Pedido marcado como entregue');
+    }
+
+    // ======== HELPERS ========
+    function openModal(el){ el.classList.add('open'); }
+    function closeModal(el){ el.classList.remove('open'); }
+
+    document.addEventListener('click', (e)=>{
+      const dec = e.target.getAttribute('data-dec');
+      const inc = e.target.getAttribute('data-inc');
+      const rm = e.target.getAttribute('data-rm');
+      const aid = e.target.getAttribute('data-id');
+      const view = e.target.getAttribute('data-id-view');
+      if(dec) changeQty(dec,-1);
+      if(inc) changeQty(inc,1);
+      if(rm) removeFromCart(rm);
+      if(aid) addToCart(aid);
+      if(view) viewProduct(view);
+    });
+
+    function viewProduct(id){ const p = PRODUCTS.find(x=>x.id===id); if(!p) return; alert(p.name + '\nPreço: ' + p.price + ' Robux'); }
+
+    function toCSV(arr){
+      if(!arr || arr.length===0) return '';
+      const keys = Object.keys(arr[0]);
+      // flatten items and buyer to strings
+      const rows = arr.map(o=>{
+        const out = Object.assign({}, o);
+        out.items = o.items.map(i=>`${i.qty}x${i.name}`).join('; ');
+        out.buyer = `${o.buyer.name} | ${o.buyer.contact} | ${o.buyer.note || ''}`;
+        return out;
+      });
+      const header = Object.keys(rows[0]).join(',') + '\n';
+      const lines = rows.map(r=>Object.values(r).map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      return header + lines;
+    }
+
+    function downloadFile(text, filename){
+      const blob = new Blob([text], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function renderHistory(){
+      const el = document.getElementById('history-list'); el.innerHTML='';
+      const my = JSON.parse(localStorage.getItem('miaw_my_history_v1')||'[]');
+      if(my.length===0){ el.innerHTML='<div class="muted-small">Nenhum pedido local</div>'; return; }
+      for(const o of my.slice(0,8)){
+        const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<div style="font-weight:700">${o.id}</div><div class="muted-small">${o.items.map(i=>i.qty+'x '+i.name).join(', ')} • ${o.total} Robux</div>`;
+        el.appendChild(d);
+      }
+    }
+
+    // ======== INIT ========
+    renderCatalog(); renderCart(); renderHistory();
+
+    // Expose small utilities to global for debugging
+    window.MIAW = {cart,orders,addToCart,clearCart,renderOrders};
+  </script>
 </body>
 </html>
