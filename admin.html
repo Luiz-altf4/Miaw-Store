@@ -1,1 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Miaw Store — Admin</title>
+  <style>
+    body{font-family:Inter,system-ui,Arial;background:#050007;color:#eee;padding:18px}
+    .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .badge{padding:6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <h1>Painel Admin — Miaw Store</h1>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input id="token" placeholder="Cole ADMIN TOKEN aqui" style="padding:8px;width:420px">
+    <button class="btn" id="load">Carregar pedidos</button>
+    <button class="btn" id="export">Export CSV</button>
+  </div>
+  <div id="orders"></div>
+
+  <script>
+    const API_BASE = 'https://seu-backend.example.com'; // trocar
+    document.getElementById('load').addEventListener('click', loadOrders);
+    document.getElementById('export').addEventListener('click', ()=> {
+      const token = document.getElementById('token').value.trim();
+      if(!token) return alert('Cole o token admin');
+      window.open(API_BASE + '/api/export?token=' + encodeURIComponent(token), '_blank');
+    });
+
+    async function loadOrders(){
+      const token = document.getElementById('token').value.trim();
+      if(!token) return alert('Cole o token admin');
+      const r = await fetch(API_BASE + '/api/orders', { headers: { 'x-admin-token': token }});
+      const json = await r.json();
+      if(!r.ok) return alert('Erro: ' + (json.error || 'unauthorized'));
+      const orders = json.orders;
+      const container = document.getElementById('orders');
+      if(!orders.length) return container.innerHTML = '<p>Nenhum pedido</p>';
+      const rows = orders.map(o => {
+        const items = o.items.map(i => `${i.qty}x ${i.name}`).join(', ');
+        return `<div style="background:#0b0015;padding:10px;border-radius:8px;margin-bottom:8px">
+          <div><strong>${o.id}</strong> — ${o.username || ''} — ${o.total} Robux — <span class="badge">${o.status}</span></div>
+          <div style="opacity:.8">${items}</div>
+          <div style="margin-top:6px">
+            <button class="btn" onclick="mark('${o.id}')">Marcar entregue</button>
+            <button class="btn" onclick="removeOrder('${o.id}')">Apagar</button>
+          </div>
+        </div>`;
+      }).join('');
+      container.innerHTML = rows;
+    }
+
+    async function mark(id){
+      const token = document.getElementById('token').value.trim();
+      if(!token) return alert('Cole o token admin');
+      const r = await fetch(API_BASE + '/api/orders', { headers: {'x-admin-token': token }});
+      // we'll call PUT directly for the id
+      const res = await fetch(API_BASE + '/api/orders/' + id, {
+        method:'PUT',
+        headers: { 'Content-Type':'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ status: 'done' })
+      });
+      const j = await res.json();
+      if(!res.ok) return alert('Erro: ' + (j.error || '...'));
+      alert('Atualizado');
+      loadOrders();
+    }
+    async function removeOrder(id){
+      const token = document.getElementById('token').value.trim();
+      if(!token) return alert('Cole o token admin');
+      if(!confirm('Apagar pedido '+id+' ?')) return;
+      const res = await fetch(API_BASE + '/api/orders/' + id, { method:'DELETE', headers:{ 'x-admin-token': token }});
+      const j = await res.json();
+      if(!res.ok) return alert('Erro: ' + (j.error||'...'));
+      alert('Apagado');
+      loadOrders();
+    }
+  </script>
+</body>
+</html>
 
