@@ -2,66 +2,202 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Miaw Store — Plants vs Brainrot</title>
-
-  <!--
-    INSTRUÇÕES RÁPIDAS:
-    1) Suba as imagens em: /assets/
-       - tomatrio.png
-       - mango.png
-       - kinglimone.png
-       - shrombino.png
-       - starfruit.png
-       - mrcarrot.png
-       (uso: https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/<arquivo>.png)
-    2) Cole este arquivo como index.html no repositório.
-    3) Vá em Settings → Pages → branch main / root → Save.
-    4) Testa: adiciona itens, clica PAGAR GAMEPASS (abre Roblox), compra, copia transactionId, cola no campo e confirma.
-    5) Painel admin: botão \"Abrir painel\" → senha padrão: miawadmin123 (troca no código antes de divulgar).
-  -->
-
   <style>
-    :root{
-      --bg1:#050005; --bg2:#1a0033; --accent1:#8b00ff; --accent2:#de00ff;
+    :root {
+      --bg1: #050005;
+      --bg2: #1a0033;
+      --accent1: #8b00ff;
+      --accent2: #de00ff;
       --glass: rgba(255,255,255,0.04);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#eaeaea;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 45%,#000 100%);-webkit-font-smoothing:antialiased}
-    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#ff6bd8,#7a00ff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;box-shadow:0 12px 40px rgba(122,0,255,0.18)}
-    h1{margin:0;font-size:22px}
-    .tag{opacity:.75;font-size:13px}
-    main{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:18px 28px}
-    @media(max-width:980px){main{grid-template-columns:1fr} .sidebar{order:2}}
-    .catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-    .card{background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.02));border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .18s ease,box-shadow .18s ease;border:1px solid rgba(255,255,255,0.03)}
-    .card:hover{transform:translateY(-8px);box-shadow:0 18px 50px rgba(122,0,255,0.12)}
-    .plant-img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 12px 30px rgba(0,0,0,0.6));transition:transform .25s}
-    .card:hover .plant-img{transform:translateY(-6px)}
-    .plant-name{font-weight:700;margin:0}
-    .price{font-weight:800;margin:4px 0}
-    .muted{opacity:.75;font-size:13px;text-align:center}
-    .btn{appearance:none;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
-    .btn-primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;box-shadow:0 10px 30px rgba(139,0,255,0.14)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
-    .sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:14px;height:fit-content;position:sticky;top:18px}
-    .cart-list{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow:auto;padding-right:6px}
-    .cart-item{display:flex;gap:10px;align-items:center}
-    .ci-img{width:64px;height:64px;border-radius:10px;object-fit:contain}
-    .ci-info{flex:1}
-    .total{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.03);margin-top:12px}
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .18s ease,visibility .18s ease;z-index:50;padding:20px}
-    .modal.open{visibility:visible;opacity:1}
-    .panel{width:920px;max-width:100%;background:#070007;border-radius:12px;padding:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
-    .badge{padding:6px 8px;border-radius:8px;font-weight:700}
-    .bg-pending{background:linear-gradient(90deg,#ffb86b,#ff6b6b);color:#120000}
-    .bg-done{background:linear-gradient(90deg,#6bffb8,#33ff9a);color:#05210e}
-    footer{padding:24px 28px;text-align:center;opacity:.6;font-size:13px}
-    .small{font-size:13px;opacity:.8}
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      color: #eaeaea;
+      background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 45%, #000 100%);
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ff6bd8, #7a00ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 26px;
+      box-shadow: 0 12px 40px rgba(122,0,255,0.18);
+    }
+    h1 { margin: 0; font-size: 22px; }
+    .tag { opacity: .75; font-size: 13px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+      padding: 18px 28px;
+    }
+    @media(max-width: 980px) {
+      main { grid-template-columns: 1fr; }
+      .sidebar { order: 2; }
+    }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0.02));
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: transform .18s ease, box-shadow .18s ease;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 50px rgba(122,0,255,0.12);
+    }
+    .plant-img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,0.6));
+      transition: transform .25s;
+    }
+    .card:hover .plant-img {
+      transform: translateY(-6px);
+    }
+    .plant-name { font-weight: 700; margin: 0; }
+    .price { font-weight: 800; margin: 4px 0; }
+    .muted { opacity: .75; font-size: 13px; text-align: center; }
+
+    .btn {
+      appearance: none;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color: white;
+      box-shadow: 0 10px 30px rgba(139,0,255,0.14);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: inherit;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding: 18px;
+      border-radius: 14px;
+      position: sticky;
+      top: 18px;
+    }
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .cart-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .ci-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+    .ci-info { flex: 1; }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(255,255,255,0.03);
+      margin-top: 12px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.6);
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity .18s ease, visibility .18s ease;
+      z-index: 50;
+    }
+    .modal.open {
+      visibility: visible;
+      opacity: 1;
+    }
+    .panel {
+      width: 920px;
+      max-width: 94%;
+      background: #070007;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px dashed rgba(255,255,255,0.03);
+    }
+    .badge {
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+    .bg-pending { background: linear-gradient(90deg,#ffb86b,#ff6b6b); color: #120000; }
+    .bg-done { background: linear-gradient(90deg,#6bffb8,#33ff9a); color: #05210e; }
+
+    footer {
+      padding: 24px 28px;
+      text-align: center;
+      opacity: .6;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -70,333 +206,329 @@
       <div class="logo">M</div>
       <div>
         <h1>Miaw Store</h1>
-        <div class="tag">Plants vs Brainrot — Loja com checkout seguro</div>
+        <div class="tag">Plants vs Brainrot — Loja com verificação segura</div>
       </div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="small">Admin</div>
-      <button class="btn btn-ghost" id="open-admin">Abrir painel</button>
-    </div>
+    <button class="btn btn-ghost" id="open-admin">Painel Admin</button>
   </header>
 
   <main>
     <section>
-      <p class="small">Catálogo</p>
+      <p class="muted">Catálogo de Plantas</p>
       <div class="catalog" id="catalog"></div>
     </section>
 
     <aside class="sidebar">
-      <h3>Carrinho</h3>
+      <h3>Seu Carrinho</h3>
       <div class="cart-list" id="cart-list"></div>
-
       <div class="total">
         <div>
-          <div class="small">Total aproximado</div>
-          <div style="font-weight:800;font-size:18px" id="cart-total">0 Robux</div>
+          <div class="muted">Total aproximado</div>
+          <div id="cart-total" style="font-size:18px;font-weight:800">0 Robux</div>
         </div>
       </div>
-
       <div style="margin-top:12px;display:flex;gap:10px">
-        <button class="btn btn-primary" id="checkout">Finalizar compra</button>
-        <button class="btn btn-ghost" id="clear-cart">Limpar</button>
+        <button class="btn btn-primary" id="checkout">Finalizar Compra</button>
+        <button class="btn btn-ghost" id="clear-cart">Limpar Carrinho</button>
       </div>
-
       <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(255,255,255,0.03)">
-      <div class="small">Histórico local</div>
+      <div class="muted">Histórico local</div>
       <div id="history-list" style="margin-top:8px;max-height:160px;overflow:auto"></div>
     </aside>
   </main>
 
-  <footer>
-    Miaw Store • Projeto GitHub Pages
-  </footer>
+  <footer>Miaw Store © 2025</footer>
 
-  <!-- CHECKOUT / TRANSACTION VERIFICATION MODAL -->
-  <div class="modal" id="checkout-modal" aria-hidden="true">
-    <div class="panel" role="dialog" aria-modal="true">
-      <h3 style="margin:0 0 8px 0">Finalizar compra</h3>
-      <div style="display:grid;gap:8px">
-        <div id="checkout-items" style="max-height:180px;overflow:auto"></div>
-
-        <div style="display:flex;gap:8px">
-          <input id="buyer-name" placeholder="Seu nome ou nickname" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
-          <input id="buyer-contact" placeholder="Contato (Discord/Roblox/Telegram)" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
-        </div>
-
-        <div style="background:rgba(0,0,0,0.18);padding:10px;border-radius:8px">
-          <div style="font-weight:700">Passo a passo — NÃO finalize sem pagar</div>
-          <ol style="margin:6px 0;padding-left:18px">
-            <li>Clique em <b>Pagar GAMEPASS</b> no produto correspondente (abre Roblox).</li>
-            <li>Compre o gamepass no Roblox.</li>
-            <li>Vá em Transações no Roblox e copie o <b>transactionId</b> (número grande).</li>
-            <li>Cole o ID abaixo e clique em <b>Verificar e Confirmar</b>.</li>
-          </ol>
-        </div>
-
-        <div style="display:flex;gap:8px;align-items:center">
-          <input id="tx-id" placeholder="Transaction ID (ex: 1591234567)" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
-          <button class="btn btn-primary" id="verify-pay">Verificar e Confirmar</button>
-        </div>
-
-        <div style="display:flex;justify-content:flex-end;gap:8px">
-          <button class="btn btn-ghost" id="cancel-checkout">Cancelar</button>
-        </div>
-      </div>
+  <!-- Modal Checkout -->
+  <div class="modal" id="checkout-modal">
+    <div class="panel">
+      <h3>Confirme sua Compra</h3>
+      <div id="checkout-items" style="max-height:200px;overflow:auto;margin-bottom:12px;"></div>
+      <div class="muted">Depois de pagar no Roblox, cole o Transaction ID abaixo:</div>
+      <input type="text" id="tx-id" placeholder="Transaction ID" />
+      <button class="btn btn-primary" id="confirm-pay">Verificar e Confirmar</button>
+      <button class="btn btn-ghost" id="cancel-checkout">Cancelar</button>
     </div>
   </div>
 
-  <!-- ADMIN MODAL -->
-  <div class="modal" id="admin-modal" aria-hidden="true">
-    <div class="panel" role="dialog" aria-modal="true">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <h3 style="margin:0">Painel Admin</h3>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" id="export-all">Exportar CSV</button>
-          <button class="btn btn-ghost" id="close-admin">Fechar</button>
-        </div>
+  <!-- Painel Admin -->
+  <div class="modal" id="admin-modal">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Painel Admin</h3>
+        <button class="btn btn-ghost" id="close-admin">Fechar</button>
       </div>
-
-      <div style="display:flex;gap:10px;margin-bottom:12px">
+      <div style="margin:12px 0;display:flex;gap:10px;">
         <input id="filter-status" placeholder="Filtrar por status (pending/done)" />
-        <input id="filter-text" placeholder="Procurar por nome/contato/ID/tx" />
-        <button class="btn btn-primary" id="apply-filters">Aplicar</button>
+        <input id="filter-text" placeholder="Procurar por nome, ID ou tx" />
+        <button class="btn btn-primary" id="apply-filters">Aplicar Filtro</button>
       </div>
-
-      <div id="orders-table" style="max-height:60vh;overflow:auto"></div>
+      <div id="orders-table" style="max-height:60vh;overflow:auto;"></div>
     </div>
   </div>
 
   <script>
-    // CONFIG
-    const ADMIN_PASSWORD = 'miawadmin123'; // troque antes de divulgar
-    const STORAGE_CART = 'miaw_cart_v3';
-    const STORAGE_ORDERS = 'miaw_orders_v3';
-    const STORAGE_TXS = 'miaw_used_tx_v2';
+    const ADMIN_PASSWORD = 'miawadmin123';
+    const STORAGE_CART = 'miaw_cart';
+    const STORAGE_ORDERS = 'miaw_orders';
+    const STORAGE_TXS = 'miaw_used_txs';
 
-    // Gamepass IDs por preço (você passou)
-    const GP_BY_PRICE = {
+    const GP = {
       50: '1591926519',
       70: '1593857095',
       100: '1591582593',
       200: '1594232992'
     };
 
-    // PRODUTOS — atualizados conforme pedido
-    // Substitua as URLs se preferir (upload em /assets/)
-    const BASE_RAW = 'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets';
+    const BASE = 'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets';
     const PRODUCTS = [
-      {id:'tomatrio', name:'Tomatrio', price:50, img: BASE_RAW + '/tomatrio.png'},
-      {id:'mango', name:'Mango', price:50, img: BASE_RAW + '/mango.png'},
-      {id:'kinglimone', name:'King Limone', price:70, img: BASE_RAW + '/kinglimone.png'},
-      {id:'shrombino', name:'Shrombino', price:50, img: BASE_RAW + '/shrombino.png'},
-      {id:'starfruit', name:'Star Fruit', price:100, img: BASE_RAW + '/starfruit.png'},
-      {id:'mrcarrot', name:'Mr Carrot', price:50, img: BASE_RAW + '/mrcarrot.png'}
+      {id:'tomatrio', name:'Tomatrio', price:50, img:`${BASE}/tomatrio.png`},
+      {id:'mango', name:'Mango', price:50, img:`${BASE}/mango.png`},
+      {id:'kinglimone', name:'King Limone', price:70, img:`${BASE}/kinglimone.png`},
+      {id:'shrombino', name:'Shrombino', price:50, img:`${BASE}/shrombino.png`},
+      {id:'starfruit', name:'Star Fruit', price:100, img:`${BASE}/starfruit.png`},
+      {id:'mrcarrot', name:'Mr Carrot', price:50, img:`${BASE}/mrcarrot.png`}
     ];
 
-    // STATE
     let cart = JSON.parse(localStorage.getItem(STORAGE_CART) || '[]');
     let orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS) || '[]');
     let usedTx = JSON.parse(localStorage.getItem(STORAGE_TXS) || '[]');
 
-    // RENDER CATALOG
-    const catalogEl = document.getElementById('catalog');
     function renderCatalog(){
-      catalogEl.innerHTML = '';
-      for(const p of PRODUCTS){
-        const card = document.createElement('div'); card.className='card';
-        const gpId = GP_BY_PRICE[p.price] || '';
-        // Gamepass link structure — opens Roblox
+      const catalog = document.getElementById('catalog');
+      catalog.innerHTML = '';
+      for (const p of PRODUCTS) {
+        const gpId = GP[p.price];
         const gpUrl = gpId ? `https://www.roblox.com/game-pass/${gpId}` : '#';
+        const card = document.createElement('div');
+        card.className = 'card';
         card.innerHTML = `
-          <img class="plant-img" src="${p.img}" alt="${p.name}" loading="lazy">
-          <div style="text-align:center">
-            <div class="plant-name">${p.name}</div>
-            <div class="price">${p.price} Robux</div>
-            <div class="muted">Clique em Pagar para abrir o gamepass</div>
-          </div>
-          <div style="margin-top:8px;display:flex;gap:8px;width:100%">
-            <button class="btn btn-primary" data-id="${p.id}" style="flex:1">Adicionar</button>
-            <a class="btn btn-ghost" href="${gpUrl}" target="_blank" rel="noopener" style="padding:10px 12px;display:inline-flex;align-items:center">Pagar GAMEPASS</a>
+          <img src="${p.img}" alt="${p.name}" class="plant-img">
+          <div class="plant-name">${p.name}</div>
+          <div class="price">${p.price} Robux</div>
+          <div class="muted">Pague pelo gamepass</div>
+          <div style="display:flex;gap:8px;width:100%;margin-top:10px;">
+            <button class="btn btn-primary" data-id="${p.id}">Adicionar</button>
+            <a class="btn btn-ghost" href="${gpUrl}" target="_blank">Pagar GAMEPASS</a>
           </div>
         `;
-        catalogEl.appendChild(card);
+        catalog.appendChild(card);
       }
     }
 
-    // CART HELPERS
     function saveCart(){ localStorage.setItem(STORAGE_CART, JSON.stringify(cart)); renderCart(); }
     function cartTotal(){ return cart.reduce((s,i)=> s + i.price * i.qty, 0); }
 
     function addToCart(id){
-      const prod = PRODUCTS.find(x=>x.id===id); if(!prod) return;
-      const found = cart.find(x=>x.id===id);
-      if(found) found.qty++;
-      else cart.push({id:prod.id,name:prod.name,price:prod.price,img:prod.img,qty:1});
+      const prod = PRODUCTS.find(p => p.id === id);
+      const exists = cart.find(i => i.id === id);
+      if (exists) exists.qty++;
+      else cart.push({ id: prod.id, name: prod.name, price: prod.price, img: prod.img, qty:1 });
       saveCart();
     }
-    function removeFromCart(id){ cart = cart.filter(x=>x.id!==id); saveCart(); }
-    function changeQty(id,delta){ const it = cart.find(x=>x.id===id); if(!it) return; it.qty = Math.max(1,it.qty+delta); saveCart(); }
-    function clearCart(){ cart = []; saveCart(); }
+
+    function removeFromCart(id){
+      cart = cart.filter(i => i.id !== id);
+      saveCart();
+    }
+
+    function changeQty(id, delta){
+      const it = cart.find(i => i.id === id);
+      if (!it) return;
+      it.qty = Math.max(1, it.qty + delta);
+      saveCart();
+    }
+
+    function clearCart(){
+      cart = [];
+      saveCart();
+    }
 
     function renderCart(){
-      const el = document.getElementById('cart-list'); el.innerHTML='';
-      if(cart.length===0){ el.innerHTML = '<div style="opacity:.7">Carrinho vazio</div>'; document.getElementById('cart-total').innerText = '0 Robux'; return; }
-      for(const it of cart){
-        const row = document.createElement('div'); row.className='cart-item';
-        row.innerHTML = `
-          <img class="ci-img" src="${it.img}" alt="">
-          <div class="ci-info">
-            <div style="font-weight:800">${it.name}</div>
-            <div style="opacity:.8">${it.price} Robux • ${it.price*it.qty} total</div>
-            <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
-              <button class="btn btn-ghost" data-dec="${it.id}">-</button>
-              <div style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.02)">${it.qty}</div>
-              <button class="btn btn-ghost" data-inc="${it.id}">+</button>
-              <button class="btn btn-ghost" data-rm="${it.id}">Remover</button>
+      const list = document.getElementById('cart-list');
+      list.innerHTML = '';
+      if (cart.length === 0) {
+        list.innerHTML = '<div class="muted">Carrinho vazio</div>';
+      } else {
+        for (const it of cart) {
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `
+            <img src="${it.img}" class="ci-img">
+            <div class="ci-info">
+              <div style="font-weight:800">${it.name}</div>
+              <div style="opacity:.8">${it.price} Robux × ${it.qty} = ${it.price * it.qty}</div>
+              <div style="margin-top:6px;display:flex;gap:6px;">
+                <button class="btn btn-ghost" data-dec="${it.id}">-</button>
+                <button class="btn btn-ghost" data-inc="${it.id}">+</button>
+                <button class="btn btn-ghost" data-rm="${it.id}">Remover</button>
+              </div>
             </div>
-          </div>
-        `;
-        el.appendChild(row);
+          `;
+          list.appendChild(div);
+        }
       }
       document.getElementById('cart-total').innerText = cartTotal() + ' Robux';
       renderHistory();
     }
 
-    // CHECKOUT + TX verification
+    // Checkout / Verificação
     const checkoutModal = document.getElementById('checkout-modal');
-    document.getElementById('checkout').addEventListener('click',()=>{ if(cart.length===0) return alert('Carrinho vazio'); openCheckout(); });
-    document.getElementById('cancel-checkout').addEventListener('click',()=>closeModal(checkoutModal));
-    document.getElementById('clear-cart').addEventListener('click',()=>{ if(!cart.length) return; if(confirm('Limpar carrinho?')) clearCart(); });
+    document.getElementById('checkout').addEventListener('click', () => {
+      if (cart.length === 0) return alert('Carrinho vazio');
+      openCheckout();
+    });
+    document.getElementById('cancel-checkout').addEventListener('click', () => closeCheckout());
 
     function openCheckout(){
-      document.getElementById('checkout-items').innerHTML = cart.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.03)"><div>${i.qty}x ${i.name}</div><div>${i.price*i.qty} Rbx</div></div>`).join('') + `<div style="margin-top:8px;font-weight:800">Total: ${cartTotal()} Robux</div>`;
-      document.getElementById('buyer-name').value = '';
-      document.getElementById('buyer-contact').value = '';
-      document.getElementById('tx-id').value = '';
+      const ci = document.getElementById('checkout-items');
+      ci.innerHTML = '';
+      for (const it of cart) {
+        ci.innerHTML += `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.03)">${it.qty}x ${it.name} — ${it.price * it.qty} Robux</div>`;
+      }
       openModal(checkoutModal);
     }
 
-    // basic transaction ID validation: digits only, length 6-20
-    function validTxFormat(tx){ return /^\d{6,20}$/.test(tx); }
+    function closeCheckout(){
+      closeModal(checkoutModal);
+    }
 
-    document.getElementById('verify-pay').addEventListener('click',()=>{
+    document.getElementById('confirm-pay').addEventListener('click', () => {
       const tx = document.getElementById('tx-id').value.trim();
-      const name = document.getElementById('buyer-name').value.trim() || 'Anônimo';
-      const contact = document.getElementById('buyer-contact').value.trim() || 'Não informado';
-      if(!validTxFormat(tx)) return alert('Transaction ID inválido — cole o número da transação do Roblox.');
-      if(usedTx.includes(tx)) return alert('Esse transaction ID já foi usado.');
-
-      // Basic heuristic: check if total matches common brackets or warn
+      if (!/^[0-9]{6,20}$/.test(tx)) {
+        return alert('Transaction ID inválido');
+      }
+      if (usedTx.includes(tx)) {
+        return alert('Este Transaction ID já foi usado');
+      }
       const total = cartTotal();
-      if(![50,70,100,200].includes(total) && total > 0){
-        if(!confirm('Total da compra não bate com um preço padrão (50/70/100/200). Continuar mesmo assim?')) return;
+      if (![50,70,100,200].includes(total) && total > 0) {
+        if (!confirm('O total da compra ('+total+') não é um valor padrão (50/70/100/200). Continuar?')) {
+          return;
+        }
       }
 
-      // Save order
+      usedTx.push(tx);
+      localStorage.setItem(STORAGE_TXS, JSON.stringify(usedTx));
+
       const order = {
         id: 'ord_' + Date.now(),
         createdAt: new Date().toISOString(),
-        items: cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})),
+        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
         total: total,
-        buyer:{name,contact},
         tx: tx,
         status: 'pending'
       };
       orders.unshift(order);
-      usedTx.push(tx);
       localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
-      localStorage.setItem(STORAGE_TXS, JSON.stringify(usedTx));
 
-      // Save customer's own history
-      const myHistory = JSON.parse(localStorage.getItem('miaw_my_history_v3')||'[]');
-      myHistory.unshift(order);
-      localStorage.setItem('miaw_my_history_v3', JSON.stringify(myHistory));
+      const my = JSON.parse(localStorage.getItem('miaw_history') || '[]');
+      my.unshift(order);
+      localStorage.setItem('miaw_history', JSON.stringify(my));
 
       clearCart();
-      closeModal(checkoutModal);
-      alert('Pedido registrado. ID: ' + order.id + '\nAguarde confirmação no painel admin.');
+      closeCheckout();
+      alert('Pedido registrado! ID: ' + order.id);
     });
 
-    // ADMIN
+    // Admin
     const adminModal = document.getElementById('admin-modal');
-    document.getElementById('open-admin').addEventListener('click',()=>{
-      const pass = prompt('Senha admin:');
-      if(pass !== ADMIN_PASSWORD) return alert('Senha incorreta');
-      openModal(adminModal); renderOrders();
+    document.getElementById('open-admin').addEventListener('click', () => {
+      const pass = prompt('Senha de admin:');
+      if (pass !== ADMIN_PASSWORD) return alert('Senha incorreta');
+      openModal(adminModal);
+      renderOrders();
     });
-    document.getElementById('close-admin').addEventListener('click',()=>closeModal(adminModal));
-    document.getElementById('apply-filters').addEventListener('click',renderOrders);
-    document.getElementById('export-all').addEventListener('click',()=>{ const csv = toCSV(orders); downloadFile(csv, 'miaw_orders_' + Date.now() + '.csv'); });
+    document.getElementById('close-admin').addEventListener('click', () => closeModal(adminModal));
+
+    document.getElementById('apply-filters').addEventListener('click', renderOrders);
 
     function renderOrders(){
-      const status = document.getElementById('filter-status').value.trim().toLowerCase();
-      const text = document.getElementById('filter-text').value.trim().toLowerCase();
-      let list = orders.slice();
-      if(status) list = list.filter(o=>o.status.toLowerCase()===status);
-      if(text) list = list.filter(o=> (o.buyer.name + ' ' + o.buyer.contact + ' ' + o.id + ' ' + o.tx).toLowerCase().includes(text));
-      const wrap = document.getElementById('orders-table'); wrap.innerHTML='';
-      if(list.length===0){ wrap.innerHTML = '<div style="opacity:.7">Nenhum pedido</div>'; return; }
+      const st = document.getElementById('filter-status').value.trim().toLowerCase();
+      const txt = document.getElementById('filter-text').value.trim().toLowerCase();
+      let list = orders;
+      if (st) list = list.filter(o => o.status.toLowerCase() === st);
+      if (txt) list = list.filter(o => (o.id + o.tx + o.items.map(i=>i.name).join(' ')).toLowerCase().includes(txt));
+      const wrap = document.getElementById('orders-table');
+      wrap.innerHTML = '';
+      if (!list.length) {
+        wrap.innerHTML = '<div style="opacity:.7">Nenhum pedido</div>';
+        return;
+      }
       const table = document.createElement('table');
-      table.innerHTML = `
-        <thead><tr><th>ID</th><th>Comprador</th><th>Itens</th><th>Total</th><th>TX</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody></tbody>
-      `;
+      table.innerHTML = `<thead><tr><th>ID</th><th>Itens</th><th>Total</th><th>TX</th><th>Status</th><th>Ações</th></tr></thead><tbody></tbody>`;
       const tbody = table.querySelector('tbody');
-      for(const o of list){
+      for (const o of list) {
         const tr = document.createElement('tr');
-        const itemsText = o.items.map(i=>`${i.qty}x ${i.name}`).join(', ');
+        const items = o.items.map(i => `${i.qty}x ${i.name}`).join(', ');
         tr.innerHTML = `
           <td>${o.id}</td>
-          <td><strong>${o.buyer.name}</strong><div style="opacity:.7">${o.buyer.contact}</div></td>
-          <td>${itemsText}</td>
+          <td>${items}</td>
           <td>${o.total} Robux</td>
           <td style="font-family:monospace">${o.tx}</td>
-          <td style="opacity:.7">${new Date(o.createdAt).toLocaleString()}</td>
           <td><span class="badge ${o.status==='pending'?'bg-pending':'bg-done'}">${o.status}</span></td>
           <td>
-            <div style="display:flex;gap:6px">
-              <button class="btn btn-ghost" data-mark="${o.id}">Marcar entregue</button>
-              <button class="btn btn-ghost" data-export="${o.id}">Exportar</button>
-              <button class="btn btn-ghost" data-del="${o.id}">Apagar</button>
-            </div>
+            <button class="btn btn-ghost" data-mark="${o.id}">Entregue</button>
+            <button class="btn btn-ghost" data-del="${o.id}">Apagar</button>
           </td>
         `;
         tbody.appendChild(tr);
       }
       wrap.appendChild(table);
 
-      table.querySelectorAll('[data-mark]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-mark'); markDelivered(id); }));
-      table.querySelectorAll('[data-export]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-export'); const o = orders.find(x=>x.id===id); if(!o) return; downloadFile(toCSV([o]), o.id + '.csv'); }));
-      table.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-del'); if(!confirm('Apagar pedido '+id+' ?')) return; orders = orders.filter(x=>x.id!==id); localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders(); }));
+      table.querySelectorAll('[data-mark]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-mark');
+          const o = orders.find(x => x.id === id);
+          if (!o) return;
+          o.status = 'done';
+          localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+          renderOrders();
+        });
+      });
+      table.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-del');
+          if (!confirm('Apagar pedido ' + id + '?')) return;
+          orders = orders.filter(x => x.id !== id);
+          localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+          renderOrders();
+        });
+      });
     }
 
-    function markDelivered(id){ const o = orders.find(x=>x.id===id); if(!o) return; o.status='done'; localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders(); alert('Pedido marcado como entregue'); }
+    // Helpers
+    function openModal(el) { el.classList.add('open'); }
+    function closeModal(el) { el.classList.remove('open'); }
 
-    // HELPERS
-    function openModal(el){ el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
-    function closeModal(el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
-
-    document.addEventListener('click', (e)=>{
+    document.addEventListener('click', e => {
       const dec = e.target.getAttribute('data-dec');
       const inc = e.target.getAttribute('data-inc');
       const rm = e.target.getAttribute('data-rm');
       const aid = e.target.getAttribute('data-id');
-      if(dec) changeQty(dec,-1);
-      if(inc) changeQty(inc,1);
-      if(rm) removeFromCart(rm);
-      if(aid) addToCart(aid);
+      if (dec) changeQty(dec, -1);
+      if (inc) changeQty(inc, 1);
+      if (rm) removeFromCart(rm);
+      if (aid) addToCart(aid);
     });
 
-    function toCSV(arr){ if(!arr||arr.length===0) return ''; const rows = arr.map(o=>{ return {id:o.id, buyer:o.buyer.name, contact:o.buyer.contact, items:o.items.map(i=>i.qty+'x'+i.name).join('; '), total:o.total, tx:o.tx, status:o.status, createdAt:o.createdAt}; }); const header = Object.keys(rows[0]).join(',') + '\n'; const lines = rows.map(r=>Object.values(r).map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'); return header + lines; }
-    function downloadFile(text, filename){ const blob = new Blob([text],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+    function renderHistory(){
+      const hl = document.getElementById('history-list');
+      hl.innerHTML = '';
+      const my = JSON.parse(localStorage.getItem('miaw_history') || '[]');
+      for (const o of my.slice(0,8)) {
+        const d = document.createElement('div');
+        d.style.padding = '8px 0';
+        d.innerHTML = `<div style="font-weight:700">${o.id}</div>
+          <div style="opacity:.8">${o.items.map(i => i.qty + 'x ' + i.name).join(', ')} — ${o.total} Robux</div>`;
+        hl.appendChild(d);
+      }
+    }
 
-    function renderHistory(){ const el = document.getElementById('history-list'); el.innerHTML=''; const my = JSON.parse(localStorage.getItem('miaw_my_history_v3')||'[]'); if(my.length===0){ el.innerHTML='<div style="opacity:.7">Nenhum pedido local</div>'; return; } for(const o of my.slice(0,8)){ const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<div style="font-weight:800">${o.id}</div><div style="opacity:.8">${o.items.map(i=>i.qty+'x '+i.name).join(', ')} • ${o.total} Robux</div>`; el.appendChild(d); } }
-
-    // INIT
-    renderCatalog(); renderCart(); renderHistory();
-
-    // expose for debug
-    window.MIAW = {cart,orders,addToCart,clearCart,renderOrders};
+    // Init
+    renderCatalog();
+    renderCart();
+    renderHistory();
   </script>
 </body>
 </html>
