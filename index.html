@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Miaw Store - PVB Shop</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #000000, #39006d, #000000);
+        background-size: 300% 300%;
+        animation: gradient 12s ease infinite;
+        font-family: "Poppins", Arial;
+        color: white;
+        text-align: center;
+    }
+
+    @keyframes gradient {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    h1 {
+        font-size: 55px;
+        margin-top: 40px;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px #a100ff, 0 0 30px #7a00bd;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% {transform: translateY(0);}
+        50% {transform: translateY(-10px);}
+        100% {transform: translateY(0);}
+    }
+
+    .container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        width: 260px;
+        padding: 15px;
+        margin: 20px;
+        transition: 0.3s;
+        box-shadow: 0 0 20px #00000080;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px #8400ff;
+    }
+
+    .img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 10px #ffffff80);
+        transition: 0.3s;
+    }
+
+    .card:hover .img {
+        transform: scale(1.10);
+        filter: drop-shadow(0 0 20px #b300ff);
+    }
+
+    .btn {
+        margin-top: 10px;
+        padding: 12px 20px;
+        background: #9d00ff;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        width: 85%;
+        box-shadow: 0 0 15px #9d00ff;
+        transition: 0.2s;
+    }
+
+    .btn:hover {
+        background: #c100ff;
+        box-shadow: 0 0 20px #d000ff;
+        transform: scale(1.04);
+    }
+
+    footer {
+        margin-top: 40px;
+        opacity: 0.7;
+        font-size: 14px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>MIAW STORE</h1>
+<p style="opacity: 0.8; font-size: 18px;">Escolha sua planta e me chama no Discord pra fechar — envio rápido, sem frescura.</p>
+
+
+<div class="container">
+
+    <!-- TOMATRIO -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/tomato/tomato_PNG12594.png" class="img">
+        <h2>Tomatrio — 50 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+    <!-- MANGO -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/mango/mango_PNG9196.png" class="img">
+        <h2>Mango — 50 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+    <!-- KING LIMONE -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/lemon/lemon_PNG25227.png" class="img">
+        <h2>King Limone — 70 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+    <!-- SHROMBINO -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/mushroom/mushroom_PNG28.png" class="img">
+        <h2>Shrombino — 50 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+    <!-- MANGO GIGANTE -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/mango/mango_PNG9198.png" class="img">
+        <h2>Mango Gigante — 100 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+    <!-- UVA ENORME -->
+    <div class="card">
+        <img src="https://pngimg.com/uploads/grape/grape_PNG12433.png" class="img">
+        <h2>Uva Enorme — 200 Robux</h2>
+        <button class="btn" onclick="copy()">Copiar contato</button>
+    </div>
+
+</div>
+
+<footer>
+    Miaw Store © 2025 • Loja independente de Plants vs Brainrot
+</footer>
+
+<script>
+function copy() {
+    navigator.clipboard.writeText("SEU DISCORD AQUI");
+    alert("Contato copiado!");
+}
+</script>
+
+</body>
+</html>
