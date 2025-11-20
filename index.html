@@ -4,8 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Miaw Store — Plants vs Brainrot</title>
+
+  <!--
+    INSTRUÇÕES RÁPIDAS:
+    1) Suba as imagens em: /assets/
+       - tomatrio.png
+       - mango.png
+       - kinglimone.png
+       - shrombino.png
+       - starfruit.png
+       - mrcarrot.png
+       (uso: https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/<arquivo>.png)
+    2) Cole este arquivo como index.html no repositório.
+    3) Vá em Settings → Pages → branch main / root → Save.
+    4) Testa: adiciona itens, clica PAGAR GAMEPASS (abre Roblox), compra, copia transactionId, cola no campo e confirma.
+    5) Painel admin: botão \"Abrir painel\" → senha padrão: miawadmin123 (troca no código antes de divulgar).
+  -->
+
   <style>
-    :root{--bg1:#050005;--bg2:#1a0033;--accent1:#8b00ff;--accent2:#de00ff}
+    :root{
+      --bg1:#050005; --bg2:#1a0033; --accent1:#8b00ff; --accent2:#de00ff;
+      --glass: rgba(255,255,255,0.04);
+    }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#eaeaea;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 45%,#000 100%);-webkit-font-smoothing:antialiased}
     header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
@@ -16,7 +36,7 @@
     main{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:18px 28px}
     @media(max-width:980px){main{grid-template-columns:1fr} .sidebar{order:2}}
     .catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .18s ease,box-shadow .18s ease;border:1px solid rgba(255,255,255,0.03)}
+    .card{background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.02));border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .18s ease,box-shadow .18s ease;border:1px solid rgba(255,255,255,0.03)}
     .card:hover{transform:translateY(-8px);box-shadow:0 18px 50px rgba(122,0,255,0.12)}
     .plant-img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 12px 30px rgba(0,0,0,0.6));transition:transform .25s}
     .card:hover .plant-img{transform:translateY(-6px)}
@@ -32,15 +52,16 @@
     .ci-img{width:64px;height:64px;border-radius:10px;object-fit:contain}
     .ci-info{flex:1}
     .total{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.03);margin-top:12px}
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .18s ease,visibility .18s ease;z-index:50}
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .18s ease,visibility .18s ease;z-index:50;padding:20px}
     .modal.open{visibility:visible;opacity:1}
-    .panel{width:920px;max-width:94%;background:#070007;border-radius:12px;padding:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .panel{width:920px;max-width:100%;background:#070007;border-radius:12px;padding:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
     table{width:100%;border-collapse:collapse;font-size:14px}
     th,td{padding:10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
     .badge{padding:6px 8px;border-radius:8px;font-weight:700}
     .bg-pending{background:linear-gradient(90deg,#ffb86b,#ff6b6b);color:#120000}
     .bg-done{background:linear-gradient(90deg,#6bffb8,#33ff9a);color:#05210e}
     footer{padding:24px 28px;text-align:center;opacity:.6;font-size:13px}
+    .small{font-size:13px;opacity:.8}
   </style>
 </head>
 <body>
@@ -53,14 +74,14 @@
       </div>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
-      <div style="opacity:.8;font-size:13px">Admin</div>
+      <div class="small">Admin</div>
       <button class="btn btn-ghost" id="open-admin">Abrir painel</button>
     </div>
   </header>
 
   <main>
     <section>
-      <p style="opacity:.8;font-size:13px">Catálogo</p>
+      <p class="small">Catálogo</p>
       <div class="catalog" id="catalog"></div>
     </section>
 
@@ -70,7 +91,7 @@
 
       <div class="total">
         <div>
-          <div style="opacity:.75;font-size:13px">Total aproximado</div>
+          <div class="small">Total aproximado</div>
           <div style="font-weight:800;font-size:18px" id="cart-total">0 Robux</div>
         </div>
       </div>
@@ -81,37 +102,39 @@
       </div>
 
       <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(255,255,255,0.03)">
-      <div style="opacity:.75;font-size:13px">Histórico local</div>
+      <div class="small">Histórico local</div>
       <div id="history-list" style="margin-top:8px;max-height:160px;overflow:auto"></div>
     </aside>
   </main>
 
   <footer>
-    Miaw Store • Projeto GitHub Pages • Admin padrão: <strong>miawadmin123</strong>
+    Miaw Store • Projeto GitHub Pages
   </footer>
 
   <!-- CHECKOUT / TRANSACTION VERIFICATION MODAL -->
-  <div class="modal" id="checkout-modal">
-    <div class="panel" style="max-width:560px">
+  <div class="modal" id="checkout-modal" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true">
       <h3 style="margin:0 0 8px 0">Finalizar compra</h3>
       <div style="display:grid;gap:8px">
         <div id="checkout-items" style="max-height:180px;overflow:auto"></div>
+
         <div style="display:flex;gap:8px">
           <input id="buyer-name" placeholder="Seu nome ou nickname" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
           <input id="buyer-contact" placeholder="Contato (Discord/Roblox/Telegram)" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
         </div>
+
         <div style="background:rgba(0,0,0,0.18);padding:10px;border-radius:8px">
           <div style="font-weight:700">Passo a passo — NÃO finalize sem pagar</div>
           <ol style="margin:6px 0;padding-left:18px">
-            <li>Clique no botão <b>Pagar GAMEPASS</b> para abrir a página do Roblox.</li>
-            <li>Realize a compra do gamepass correspondente (Robux).</li>
-            <li>Abra sua página de transações no Roblox e copie o <b>transactionId</b> (número grande).</li>
-            <li>Cole o ID no campo abaixo e confirme — o site vai validar o formato e evitar fraudes.</li>
+            <li>Clique em <b>Pagar GAMEPASS</b> no produto correspondente (abre Roblox).</li>
+            <li>Compre o gamepass no Roblox.</li>
+            <li>Vá em Transações no Roblox e copie o <b>transactionId</b> (número grande).</li>
+            <li>Cole o ID abaixo e clique em <b>Verificar e Confirmar</b>.</li>
           </ol>
         </div>
 
         <div style="display:flex;gap:8px;align-items:center">
-          <input id="tx-id" placeholder="Transaction ID (ex: 1234567890)" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
+          <input id="tx-id" placeholder="Transaction ID (ex: 1591234567)" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit">
           <button class="btn btn-primary" id="verify-pay">Verificar e Confirmar</button>
         </div>
 
@@ -123,8 +146,8 @@
   </div>
 
   <!-- ADMIN MODAL -->
-  <div class="modal" id="admin-modal">
-    <div class="panel">
+  <div class="modal" id="admin-modal" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <h3 style="margin:0">Painel Admin</h3>
         <div style="display:flex;gap:8px">
@@ -135,7 +158,7 @@
 
       <div style="display:flex;gap:10px;margin-bottom:12px">
         <input id="filter-status" placeholder="Filtrar por status (pending/done)" />
-        <input id="filter-text" placeholder="Procurar por nome/contato/ID" />
+        <input id="filter-text" placeholder="Procurar por nome/contato/ID/tx" />
         <button class="btn btn-primary" id="apply-filters">Aplicar</button>
       </div>
 
@@ -145,10 +168,10 @@
 
   <script>
     // CONFIG
-    const ADMIN_PASSWORD = 'miawadmin123'; // muda se quiser
-    const STORAGE_CART = 'miaw_cart_v2';
-    const STORAGE_ORDERS = 'miaw_orders_v2';
-    const STORAGE_TXS = 'miaw_used_tx_v1';
+    const ADMIN_PASSWORD = 'miawadmin123'; // troque antes de divulgar
+    const STORAGE_CART = 'miaw_cart_v3';
+    const STORAGE_ORDERS = 'miaw_orders_v3';
+    const STORAGE_TXS = 'miaw_used_tx_v2';
 
     // Gamepass IDs por preço (você passou)
     const GP_BY_PRICE = {
@@ -158,14 +181,16 @@
       200: '1594232992'
     };
 
-    // Produtos (troque img para URLs oficiais seus se quiser)
+    // PRODUTOS — atualizados conforme pedido
+    // Substitua as URLs se preferir (upload em /assets/)
+    const BASE_RAW = 'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets';
     const PRODUCTS = [
-      {id:'tomatrio', name:'Tomatrio', price:50, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/tomatrio.png'},
-      {id:'mango', name:'Mango', price:50, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/mango.png'},
-      {id:'kinglimone', name:'King Limone', price:70, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/kinglimone.png'},
-      {id:'shrombino', name:'Shrombino', price:50, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/shrombino.png'},
-      {id:'starfruit', name:'Star Fruit', price:100, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/starfruit.png'},
-      {id:'mrcarrot', name:'Mr Carrot', price:50, img:'https://raw.githubusercontent.com/luiz-assets/pvb/main/mrcarrot.png'}
+      {id:'tomatrio', name:'Tomatrio', price:50, img: BASE_RAW + '/tomatrio.png'},
+      {id:'mango', name:'Mango', price:50, img: BASE_RAW + '/mango.png'},
+      {id:'kinglimone', name:'King Limone', price:70, img: BASE_RAW + '/kinglimone.png'},
+      {id:'shrombino', name:'Shrombino', price:50, img: BASE_RAW + '/shrombino.png'},
+      {id:'starfruit', name:'Star Fruit', price:100, img: BASE_RAW + '/starfruit.png'},
+      {id:'mrcarrot', name:'Mr Carrot', price:50, img: BASE_RAW + '/mrcarrot.png'}
     ];
 
     // STATE
@@ -180,35 +205,42 @@
       for(const p of PRODUCTS){
         const card = document.createElement('div'); card.className='card';
         const gpId = GP_BY_PRICE[p.price] || '';
+        // Gamepass link structure — opens Roblox
         const gpUrl = gpId ? `https://www.roblox.com/game-pass/${gpId}` : '#';
         card.innerHTML = `
-          <img class="plant-img" src="${p.img}" alt="${p.name}">
+          <img class="plant-img" src="${p.img}" alt="${p.name}" loading="lazy">
           <div style="text-align:center">
             <div class="plant-name">${p.name}</div>
             <div class="price">${p.price} Robux</div>
             <div class="muted">Clique em Pagar para abrir o gamepass</div>
           </div>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn btn-primary" data-id="${p.id}">Adicionar</button>
-            <a class="btn btn-ghost" href="${gpUrl}" target="_blank" rel="noopener">Pagar GAMEPASS</a>
+          <div style="margin-top:8px;display:flex;gap:8px;width:100%">
+            <button class="btn btn-primary" data-id="${p.id}" style="flex:1">Adicionar</button>
+            <a class="btn btn-ghost" href="${gpUrl}" target="_blank" rel="noopener" style="padding:10px 12px;display:inline-flex;align-items:center">Pagar GAMEPASS</a>
           </div>
         `;
         catalogEl.appendChild(card);
       }
     }
 
-    // CART
+    // CART HELPERS
     function saveCart(){ localStorage.setItem(STORAGE_CART, JSON.stringify(cart)); renderCart(); }
     function cartTotal(){ return cart.reduce((s,i)=> s + i.price * i.qty, 0); }
 
-    function addToCart(id){ const prod = PRODUCTS.find(x=>x.id===id); if(!prod) return; const found = cart.find(x=>x.id===id); if(found) found.qty++; else cart.push({id:prod.id,name:prod.name,price:prod.price,img:prod.img,qty:1}); saveCart(); }
+    function addToCart(id){
+      const prod = PRODUCTS.find(x=>x.id===id); if(!prod) return;
+      const found = cart.find(x=>x.id===id);
+      if(found) found.qty++;
+      else cart.push({id:prod.id,name:prod.name,price:prod.price,img:prod.img,qty:1});
+      saveCart();
+    }
     function removeFromCart(id){ cart = cart.filter(x=>x.id!==id); saveCart(); }
     function changeQty(id,delta){ const it = cart.find(x=>x.id===id); if(!it) return; it.qty = Math.max(1,it.qty+delta); saveCart(); }
     function clearCart(){ cart = []; saveCart(); }
 
     function renderCart(){
       const el = document.getElementById('cart-list'); el.innerHTML='';
-      if(cart.length===0){ el.innerHTML = '<div style="opacity:.7">Carrinho vazio</div>'; }
+      if(cart.length===0){ el.innerHTML = '<div style="opacity:.7">Carrinho vazio</div>'; document.getElementById('cart-total').innerText = '0 Robux'; return; }
       for(const it of cart){
         const row = document.createElement('div'); row.className='cart-item';
         row.innerHTML = `
@@ -234,6 +266,7 @@
     const checkoutModal = document.getElementById('checkout-modal');
     document.getElementById('checkout').addEventListener('click',()=>{ if(cart.length===0) return alert('Carrinho vazio'); openCheckout(); });
     document.getElementById('cancel-checkout').addEventListener('click',()=>closeModal(checkoutModal));
+    document.getElementById('clear-cart').addEventListener('click',()=>{ if(!cart.length) return; if(confirm('Limpar carrinho?')) clearCart(); });
 
     function openCheckout(){
       document.getElementById('checkout-items').innerHTML = cart.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.03)"><div>${i.qty}x ${i.name}</div><div>${i.price*i.qty} Rbx</div></div>`).join('') + `<div style="margin-top:8px;font-weight:800">Total: ${cartTotal()} Robux</div>`;
@@ -243,6 +276,7 @@
       openModal(checkoutModal);
     }
 
+    // basic transaction ID validation: digits only, length 6-20
     function validTxFormat(tx){ return /^\d{6,20}$/.test(tx); }
 
     document.getElementById('verify-pay').addEventListener('click',()=>{
@@ -251,9 +285,14 @@
       const contact = document.getElementById('buyer-contact').value.trim() || 'Não informado';
       if(!validTxFormat(tx)) return alert('Transaction ID inválido — cole o número da transação do Roblox.');
       if(usedTx.includes(tx)) return alert('Esse transaction ID já foi usado.');
-      const total = cartTotal();
-      if(![50,70,100,200].includes(total) && total > 0){ if(!confirm('Total da compra não bate com um preço padrão. Continuar mesmo assim?')) return; }
 
+      // Basic heuristic: check if total matches common brackets or warn
+      const total = cartTotal();
+      if(![50,70,100,200].includes(total) && total > 0){
+        if(!confirm('Total da compra não bate com um preço padrão (50/70/100/200). Continuar mesmo assim?')) return;
+      }
+
+      // Save order
       const order = {
         id: 'ord_' + Date.now(),
         createdAt: new Date().toISOString(),
@@ -267,16 +306,23 @@
       usedTx.push(tx);
       localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
       localStorage.setItem(STORAGE_TXS, JSON.stringify(usedTx));
-      const myHistory = JSON.parse(localStorage.getItem('miaw_my_history_v2')||'[]'); myHistory.unshift(order); localStorage.setItem('miaw_my_history_v2', JSON.stringify(myHistory));
+
+      // Save customer's own history
+      const myHistory = JSON.parse(localStorage.getItem('miaw_my_history_v3')||'[]');
+      myHistory.unshift(order);
+      localStorage.setItem('miaw_my_history_v3', JSON.stringify(myHistory));
+
       clearCart();
       closeModal(checkoutModal);
-      alert('Pedido registrado. ID: ' + order.id + '\\nAguarde confirmação no painel admin.');
+      alert('Pedido registrado. ID: ' + order.id + '\nAguarde confirmação no painel admin.');
     });
 
     // ADMIN
     const adminModal = document.getElementById('admin-modal');
     document.getElementById('open-admin').addEventListener('click',()=>{
-      const pass = prompt('Senha admin:'); if(pass !== ADMIN_PASSWORD) return alert('Senha incorreta'); openModal(adminModal); renderOrders();
+      const pass = prompt('Senha admin:');
+      if(pass !== ADMIN_PASSWORD) return alert('Senha incorreta');
+      openModal(adminModal); renderOrders();
     });
     document.getElementById('close-admin').addEventListener('click',()=>closeModal(adminModal));
     document.getElementById('apply-filters').addEventListener('click',renderOrders);
@@ -318,15 +364,18 @@
         tbody.appendChild(tr);
       }
       wrap.appendChild(table);
+
       table.querySelectorAll('[data-mark]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-mark'); markDelivered(id); }));
       table.querySelectorAll('[data-export]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-export'); const o = orders.find(x=>x.id===id); if(!o) return; downloadFile(toCSV([o]), o.id + '.csv'); }));
       table.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-del'); if(!confirm('Apagar pedido '+id+' ?')) return; orders = orders.filter(x=>x.id!==id); localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders(); }));
     }
+
     function markDelivered(id){ const o = orders.find(x=>x.id===id); if(!o) return; o.status='done'; localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders)); renderOrders(); alert('Pedido marcado como entregue'); }
 
     // HELPERS
-    function openModal(el){ el.classList.add('open'); }
-    function closeModal(el){ el.classList.remove('open'); }
+    function openModal(el){ el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
+    function closeModal(el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
+
     document.addEventListener('click', (e)=>{
       const dec = e.target.getAttribute('data-dec');
       const inc = e.target.getAttribute('data-inc');
@@ -338,13 +387,15 @@
       if(aid) addToCart(aid);
     });
 
-    function toCSV(arr){ if(!arr||arr.length===0) return ''; const rows = arr.map(o=>{ return {id:o.id, buyer:o.buyer.name, contact:o.buyer.contact, items:o.items.map(i=>i.qty+'x'+i.name).join('; '), total:o.total, tx:o.tx, status:o.status, createdAt:o.createdAt}; }); const header = Object.keys(rows[0]).join(',') + '\\n'; const lines = rows.map(r=>Object.values(r).map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\\n'); return header + lines; }
+    function toCSV(arr){ if(!arr||arr.length===0) return ''; const rows = arr.map(o=>{ return {id:o.id, buyer:o.buyer.name, contact:o.buyer.contact, items:o.items.map(i=>i.qty+'x'+i.name).join('; '), total:o.total, tx:o.tx, status:o.status, createdAt:o.createdAt}; }); const header = Object.keys(rows[0]).join(',') + '\n'; const lines = rows.map(r=>Object.values(r).map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'); return header + lines; }
     function downloadFile(text, filename){ const blob = new Blob([text],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
-    function renderHistory(){ const el = document.getElementById('history-list'); el.innerHTML=''; const my = JSON.parse(localStorage.getItem('miaw_my_history_v2')||'[]'); if(my.length===0){ el.innerHTML='<div style="opacity:.7">Nenhum pedido local</div>'; return; } for(const o of my.slice(0,8)){ const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<div style="font-weight:800">${o.id}</div><div style="opacity:.8">${o.items.map(i=>i.qty+'x '+i.name).join(', ')} • ${o.total} Robux</div>`; el.appendChild(d); } }
+    function renderHistory(){ const el = document.getElementById('history-list'); el.innerHTML=''; const my = JSON.parse(localStorage.getItem('miaw_my_history_v3')||'[]'); if(my.length===0){ el.innerHTML='<div style="opacity:.7">Nenhum pedido local</div>'; return; } for(const o of my.slice(0,8)){ const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<div style="font-weight:800">${o.id}</div><div style="opacity:.8">${o.items.map(i=>i.qty+'x '+i.name).join(', ')} • ${o.total} Robux</div>`; el.appendChild(d); } }
 
     // INIT
     renderCatalog(); renderCart(); renderHistory();
+
+    // expose for debug
     window.MIAW = {cart,orders,addToCart,clearCart,renderOrders};
   </script>
 </body>
