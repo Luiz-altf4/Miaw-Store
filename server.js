@@ -1,171 +1,114 @@
-// server.js
-// Node/Express backend for Miaw Store — simple file DB + Roblox verification
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch'); // if Node 18+, can use global fetch
-const bodyParser = require('body-parser');
-const cors = require('cors');
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Miaw Store — Compra Segura</title>
+  <style>
+    body { margin:0; font-family:Arial; background:#1a001f; color:#eee; }
+    header {padding:20px; text-align:center; font-size:36px;}
+    .container {max-width:1000px; margin:auto; padding:20px;}
+    .products {display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px;}
+    .card {background:rgba(255,255,255,0.08); padding:15px; border-radius:12px; text-align:center; transition:0.2s;}
+    .card:hover {transform:translateY(-6px); background:rgba(255,255,255,0.12);}
+    .card img {width:150px; height:150px; object-fit:contain;}
+    .btn {margin-top:10px; padding:10px; border:none; border-radius:8px; cursor:pointer; background:purple; color:white;}
+    #cart {margin-top:30px; background:rgba(255,255,255,0.1); padding:20px; border-radius:12px;}
+    #checkout-modal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;}
+    #checkout-modal .modal-content {background:#2a002d;padding:20px;border-radius:12px;width:320px;}
+    input {width:100%;padding:8px;margin-top:8px;border-radius:6px;border:none;}
+  </style>
+</head>
+<body>
+  <header>Miaw Store</header>
+  <div class="container">
+    <div class="products" id="product-list"></div>
 
-const DATA_DIR = path.join(__dirname, 'data');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
-const TXS_FILE = path.join(DATA_DIR, 'usedTx.json');
+    <div id="cart">
+      <h3>Seu Carrinho</h3>
+      <div id="cart-items"></div>
+      <button class="btn" onclick="openCheckout()">Finalizar Compra</button>
+    </div>
+  </div>
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, JSON.stringify([]));
-if (!fs.existsSync(TXS_FILE)) fs.writeFileSync(TXS_FILE, JSON.stringify([]));
+  <div id="checkout-modal">
+    <div class="modal-content">
+      <h3>Verificação</h3>
+      <input id="username" placeholder="Seu username Roblox">
+      <input id="txid" placeholder="Transaction ID">
+      <button class="btn" onclick="verify()">Verificar Pagamento</button>
+      <button class="btn" onclick="closeCheckout()">Cancelar</button>
+      <div id="msg" style="margin-top:10px; color:red;"></div>
+    </div>
+  </div>
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+  <script>
+    const API = 'https://SEU_BACKEND_URL'; // coloca seu backend aqui
+    const PRODUCTS = [
+      {id:'tomatrio', name:'Tomatrio', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/tomatrio.png'},
+      {id:'mango', name:'Mango', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/mango.png'},
+      {id:'kinglimone', name:'King Limone', price:70, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/kinglimone.png'},
+      {id:'shrombino', name:'Shrombino', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/shrombino.png'},
+      {id:'starfruit', name:'Star Fruit', price:100, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/starfruit.png'},
+      {id:'mrcarrot', name:'Mr Carrot', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/mrcarrot.png'}
+    ];
 
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'troca_esse_token_agora'; // use env var in prod
+    let cart = [];
 
-// Gamepass mapping by total price (same que no frontend)
-const GAMEPASSES = {
-  50: '1591926519',
-  70: '1593857095',
-  100: '1591582593',
-  200: '1594232992'
-};
+    function renderCatalog(){
+      const el = document.getElementById('product-list');
+      PRODUCTS.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${p.img}" />
+          <h4>${p.name}</h4>
+          <p>${p.price} Robux</p>
+          <button class="btn" onclick="addToCart('${p.id}')">Adicionar</button>
+        `;
+        el.appendChild(card);
+      });
+    }
 
-function readOrders(){ return JSON.parse(fs.readFileSync(ORDERS_FILE,'utf8')||'[]'); }
-function writeOrders(data){ fs.writeFileSync(ORDERS_FILE, JSON.stringify(data, null, 2)); }
-function readTxs(){ return JSON.parse(fs.readFileSync(TXS_FILE,'utf8')||'[]'); }
-function writeTxs(data){ fs.writeFileSync(TXS_FILE, JSON.stringify(data, null, 2)); }
+    function addToCart(id){
+      const p = PRODUCTS.find(x => x.id === id);
+      cart.push(p);
+      renderCart();
+    }
+    function renderCart(){
+      const el = document.getElementById('cart-items');
+      el.innerHTML = cart.map(c => `<div>${c.name} - ${c.price} RBX</div>`).join('');
+    }
 
-/**
- * Helper: get Roblox userId from username
- * Uses users.roblox.com/v1/usernames/users (POST) - recommended
- */
-async function getUserIdFromUsername(username){
-  const res = await fetch('https://users.roblox.com/v1/usernames/users', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json' },
-    body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-  });
-  if(!res.ok) return null;
-  const json = await res.json();
-  if(!json || !json.data || json.data.length===0) return null;
-  return json.data[0].id;
-}
+    function openCheckout(){
+      document.getElementById('checkout-modal').style.display = 'flex';
+    }
+    function closeCheckout(){
+      document.getElementById('checkout-modal').style.display = 'none';
+      document.getElementById('msg').innerText = '';
+    }
 
-/**
- * Helper: check if user owns gamepass
- * Uses inventory.roblox.com/v1/users/{userId}/items/GamePass/{gamePassId}
- * Returns true if non-empty
- */
-async function checkUserOwnsGamepass(userId, gamepassId){
-  const url = `https://inventory.roblox.com/v1/users/${userId}/items/GamePass/${gamepassId}`;
-  const res = await fetch(url, { method:'GET' });
-  if(!res.ok){
-    // some endpoints may return 404 / 500 - treat as not owning, but log
-    return false;
-  }
-  const json = await res.json();
-  // If data array exists and not empty => owns
-  if(json && Array.isArray(json.data) && json.data.length > 0) return true;
-  // Some endpoints return a different shape - try fallback:
-  if(json && json.total && json.total > 0) return true;
-  return false;
-}
+    async function verify(){
+      const username = document.getElementById('username').value.trim();
+      const tx = document.getElementById('txid').value.trim();
+      if(!username || !tx) return document.getElementById('msg').innerText = 'Preencha username e TX';
 
-/**
- * POST /api/verify
- * body: { username, tx, items: [{id,name,price,qty}], total }
- * verifies that user owns the appropriate gamepass (by total)
- * checks tx not used
- * saves order to orders.json
- */
-app.post('/api/verify', async (req, res) => {
-  try{
-    const { username, tx, items, total } = req.body;
-    if(!username || !tx || !Array.isArray(items) || !total) return res.status(400).json({ ok:false, error:'missing_fields' });
+      const total = cart.reduce((s,i)=>s+i.price, 0);
+      const resp = await fetch(API + '/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ username, tx, total, items: cart })
+      });
+      const j = await resp.json();
+      if(!j.ok) return document.getElementById('msg').innerText = 'Erro: ' + j.error;
+      alert('Compra confirmada! ID do pedido: ' + j.orderId);
+      cart = [];
+      renderCart();
+      closeCheckout();
+    }
 
-    // check tx duplicate
-    const used = readTxs();
-    if(used.includes(tx)) return res.status(409).json({ ok:false, error:'tx_used' });
-
-    // get gamepass id by total
-    const gpId = GAMEPASSES[total];
-    if(!gpId) return res.status(400).json({ ok:false, error:'invalid_total' });
-
-    // convert username -> userId
-    const userId = await getUserIdFromUsername(username);
-    if(!userId) return res.status(404).json({ ok:false, error:'username_not_found' });
-
-    // check ownership
-    const owns = await checkUserOwnsGamepass(userId, gpId);
-    if(!owns) return res.status(402).json({ ok:false, error:'not_paid' });
-
-    // ok — save order
-    const orders = readOrders();
-    const order = {
-      id: 'ord_' + Date.now(),
-      username, userId,
-      items, total, tx, createdAt: new Date().toISOString(), status: 'pending'
-    };
-    orders.unshift(order);
-    writeOrders(orders);
-
-    // save tx
-    used.push(tx); writeTxs(used);
-
-    return res.json({ ok:true, orderId: order.id });
-  }catch(err){
-    console.error('verify error', err);
-    return res.status(500).json({ ok:false, error:'server_error' });
-  }
-});
-
-/**
- * Admin routes
- * GET /api/orders -> list (auth by ADMIN_TOKEN header)
- * PUT /api/orders/:id -> update status (body: { status })
- * DELETE /api/orders/:id
- * GET /api/export -> CSV download
- */
-function requireAdmin(req,res,next){
-  const token = req.headers['x-admin-token'] || req.query.token;
-  if(!token || token !== ADMIN_TOKEN) return res.status(401).json({ ok:false, error:'unauthorized' });
-  next();
-}
-
-app.get('/api/orders', requireAdmin, (req,res) => {
-  const orders = readOrders();
-  res.json({ ok:true, orders });
-});
-
-app.put('/api/orders/:id', requireAdmin, (req,res) => {
-  const id = req.params.id;
-  const { status } = req.body;
-  const orders = readOrders();
-  const o = orders.find(x => x.id === id);
-  if(!o) return res.status(404).json({ ok:false, error:'not_found' });
-  o.status = status || o.status;
-  writeOrders(orders);
-  res.json({ ok:true, order: o });
-});
-
-app.delete('/api/orders/:id', requireAdmin, (req,res) => {
-  const id = req.params.id;
-  let orders = readOrders();
-  orders = orders.filter(x => x.id !== id);
-  writeOrders(orders);
-  res.json({ ok:true });
-});
-
-app.get('/api/export', requireAdmin, (req,res) => {
-  const orders = readOrders();
-  const rows = orders.map(o => {
-    const items = o.items.map(i => `${i.qty}x ${i.name}`).join('; ');
-    return `"${o.id}","${o.username}","${o.userId}","${items}","${o.total}","${o.tx}","${o.status}","${o.createdAt}"`;
-  });
-  const header = '"id","username","userId","items","total","tx","status","createdAt"\\n';
-  res.setHeader('Content-Type','text/csv');
-  res.setHeader('Content-Disposition','attachment; filename=miaw_orders.csv');
-  res.send(header + rows.join('\\n'));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Miaw-backend running on', PORT));
+    renderCatalog();
+    renderCart();
+  </script>
+</body>
+</html>
