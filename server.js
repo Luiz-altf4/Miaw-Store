@@ -1,114 +1,129 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Miaw Store — Compra Segura</title>
-  <style>
-    body { margin:0; font-family:Arial; background:#1a001f; color:#eee; }
-    header {padding:20px; text-align:center; font-size:36px;}
-    .container {max-width:1000px; margin:auto; padding:20px;}
-    .products {display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px;}
-    .card {background:rgba(255,255,255,0.08); padding:15px; border-radius:12px; text-align:center; transition:0.2s;}
-    .card:hover {transform:translateY(-6px); background:rgba(255,255,255,0.12);}
-    .card img {width:150px; height:150px; object-fit:contain;}
-    .btn {margin-top:10px; padding:10px; border:none; border-radius:8px; cursor:pointer; background:purple; color:white;}
-    #cart {margin-top:30px; background:rgba(255,255,255,0.1); padding:20px; border-radius:12px;}
-    #checkout-modal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;}
-    #checkout-modal .modal-content {background:#2a002d;padding:20px;border-radius:12px;width:320px;}
-    input {width:100%;padding:8px;margin-top:8px;border-radius:6px;border:none;}
-  </style>
-</head>
-<body>
-  <header>Miaw Store</header>
-  <div class="container">
-    <div class="products" id="product-list"></div>
+const express = require("express");
+const fs = require("fs");
+const fetch = require("node-fetch");
+const path = require("path");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-    <div id="cart">
-      <h3>Seu Carrinho</h3>
-      <div id="cart-items"></div>
-      <button class="btn" onclick="openCheckout()">Finalizar Compra</button>
-    </div>
-  </div>
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
 
-  <div id="checkout-modal">
-    <div class="modal-content">
-      <h3>Verificação</h3>
-      <input id="username" placeholder="Seu username Roblox">
-      <input id="txid" placeholder="Transaction ID">
-      <button class="btn" onclick="verify()">Verificar Pagamento</button>
-      <button class="btn" onclick="closeCheckout()">Cancelar</button>
-      <div id="msg" style="margin-top:10px; color:red;"></div>
-    </div>
-  </div>
+const DATA_PATH = path.join(__dirname, "data");
+if (!fs.existsSync(DATA_PATH)) fs.mkdirSync(DATA_PATH);
 
-  <script>
-    const API = 'https://SEU_BACKEND_URL'; // coloca seu backend aqui
-    const PRODUCTS = [
-      {id:'tomatrio', name:'Tomatrio', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/tomatrio.png'},
-      {id:'mango', name:'Mango', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/mango.png'},
-      {id:'kinglimone', name:'King Limone', price:70, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/kinglimone.png'},
-      {id:'shrombino', name:'Shrombino', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/shrombino.png'},
-      {id:'starfruit', name:'Star Fruit', price:100, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/starfruit.png'},
-      {id:'mrcarrot', name:'Mr Carrot', price:50, img:'https://raw.githubusercontent.com/Luiz-altf4/Miaw-Store/main/assets/mrcarrot.png'}
-    ];
+const ORDERS_FILE = path.join(DATA_PATH, "orders.json");
+const TX_FILE = path.join(DATA_PATH, "used_tx.json");
 
-    let cart = [];
+if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
+if (!fs.existsSync(TX_FILE)) fs.writeFileSync(TX_FILE, "[]");
 
-    function renderCatalog(){
-      const el = document.getElementById('product-list');
-      PRODUCTS.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${p.img}" />
-          <h4>${p.name}</h4>
-          <p>${p.price} Robux</p>
-          <button class="btn" onclick="addToCart('${p.id}')">Adicionar</button>
-        `;
-        el.appendChild(card);
-      });
-    }
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "MIAW-SUPER-PAINEL";
 
-    function addToCart(id){
-      const p = PRODUCTS.find(x => x.id === id);
-      cart.push(p);
-      renderCart();
-    }
-    function renderCart(){
-      const el = document.getElementById('cart-items');
-      el.innerHTML = cart.map(c => `<div>${c.name} - ${c.price} RBX</div>`).join('');
-    }
+// gamepasses por valor
+const GAMEPASSES = {
+  50: "1591926519",
+  70: "1593857095",
+  100: "1591582593",
+  200: "1594232992"
+};
 
-    function openCheckout(){
-      document.getElementById('checkout-modal').style.display = 'flex';
-    }
-    function closeCheckout(){
-      document.getElementById('checkout-modal').style.display = 'none';
-      document.getElementById('msg').innerText = '';
-    }
+function load(file) {
+  return JSON.parse(fs.readFileSync(file, "utf-8"));
+}
 
-    async function verify(){
-      const username = document.getElementById('username').value.trim();
-      const tx = document.getElementById('txid').value.trim();
-      if(!username || !tx) return document.getElementById('msg').innerText = 'Preencha username e TX';
+function save(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+}
 
-      const total = cart.reduce((s,i)=>s+i.price, 0);
-      const resp = await fetch(API + '/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ username, tx, total, items: cart })
-      });
-      const j = await resp.json();
-      if(!j.ok) return document.getElementById('msg').innerText = 'Erro: ' + j.error;
-      alert('Compra confirmada! ID do pedido: ' + j.orderId);
-      cart = [];
-      renderCart();
-      closeCheckout();
-    }
+async function robloxUserId(username) {
+  const r = await fetch("https://users.roblox.com/v1/usernames/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
+  });
+  const j = await r.json();
+  if (!j.data || j.data.length === 0) return null;
+  return j.data[0].id;
+}
 
-    renderCatalog();
-    renderCart();
-  </script>
-</body>
-</html>
+async function userOwnsGamepass(userId, gpId) {
+  const r = await fetch(
+    `https://inventory.roblox.com/v1/users/${userId}/items/GamePass/${gpId}`
+  );
+  if (!r.ok) return false;
+  const j = await r.json();
+  return j.data && j.data.length > 0;
+}
+
+app.post("/api/verify", async (req, res) => {
+  const { username, tx, total, items } = req.body;
+
+  if (!username || !tx || !total) {
+    return res.json({ ok: false, error: "missing_fields" });
+  }
+
+  const used = load(TX_FILE);
+  if (used.includes(tx)) {
+    return res.json({ ok: false, error: "tx_already_used" });
+  }
+
+  const gpId = GAMEPASSES[total];
+  if (!gpId) {
+    return res.json({ ok: false, error: "invalid_total" });
+  }
+
+  const userId = await robloxUserId(username);
+  if (!userId) {
+    return res.json({ ok: false, error: "invalid_username" });
+  }
+
+  const owns = await userOwnsGamepass(userId, gpId);
+  if (!owns) {
+    return res.json({ ok: false, error: "payment_not_found" });
+  }
+
+  const orders = load(ORDERS_FILE);
+  const newOrder = {
+    id: "ORD-" + Date.now(),
+    username,
+    userId,
+    items,
+    tx,
+    total,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  orders.unshift(newOrder);
+  save(ORDERS_FILE, orders);
+
+  used.push(tx);
+  save(TX_FILE, used);
+
+  return res.json({ ok: true, order: newOrder });
+});
+
+// admin: listar
+app.get("/api/admin/orders", (req, res) => {
+  if (req.headers["x-admin-token"] !== ADMIN_TOKEN)
+    return res.status(403).json({ ok: false });
+  res.json(load(ORDERS_FILE));
+});
+
+// admin: alterar status
+app.put("/api/admin/orders/:id", (req, res) => {
+  if (req.headers["x-admin-token"] !== ADMIN_TOKEN)
+    return res.status(403).json({ ok: false });
+
+  const orders = load(ORDERS_FILE);
+  const o = orders.find((x) => x.id === req.params.id);
+  if (!o) return res.json({ ok: false });
+
+  o.status = req.body.status;
+  save(ORDERS_FILE, orders);
+
+  res.json({ ok: true });
+});
+
+app.listen(3000, () => console.log("Backend rodando na porta 3000"));
